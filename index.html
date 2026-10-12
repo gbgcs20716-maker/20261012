@@ -1,0 +1,247 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>BLOOM NOTE</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 모바일 단일 컬럼 앱. 상단 검색 → 필터 → 결과 목록, 하단 탭(검색/내 노트). 식물도감 느낌의 초록 회색 바탕에 자주빛 포인트. */
+:root{
+  --bg:#EDF1EA; --surface:#FAFBF7; --ink:#1B2A22; --muted:#596A60; --line:#D2DACD;
+  --accent:#8E2F5C; --accent-ink:#FFFFFF; --good:#2D6A4C; --bad:#5C4A8C; --chip:#E1E8DC;
+  --font-display:'Gowun Batang','Nanum Myeongjo',serif;
+  --font-body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111A15; --surface:#1A251E; --ink:#E7EEE8; --muted:#9AABA0; --line:#2C3A31;
+  --accent:#E98DB5; --accent-ink:#2A0F1B; --good:#7DC7A2; --bad:#B7A8F0; --chip:#243229; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#111A15; --surface:#1A251E; --ink:#E7EEE8; --muted:#9AABA0; --line:#2C3A31;
+  --accent:#E98DB5; --accent-ink:#2A0F1B; --good:#7DC7A2; --bad:#B7A8F0; --chip:#243229; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:0 84px}
+.app{max-width:560px;margin-inline:auto}
+header{padding-block:18px 10px}
+.brand{font-family:var(--font-display);font-size:26px;font-weight:700;letter-spacing:.14em;margin:0}
+.brand small{display:block;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+.sticky{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:8px 10px;z-index:5}
+.search{display:flex;gap:8px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding-inline:14px}
+.search:focus-within{border-color:var(--accent)}
+.search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;padding-block:13px;outline:none}
+.search button{border:0;background:transparent;color:var(--muted);font:inherit;padding:6px;cursor:pointer}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--chip);border-radius:12px;padding:4px;margin-top:10px}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:500;padding-block:8px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-block:10px 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;padding:6px 12px;border-radius:99px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.label{font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:700;margin:18px 0 8px}
+.hint{font-size:13px;color:var(--muted);margin:6px 0 0}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;min-width:0}
+.card.today{border-color:var(--accent)}
+.top{display:flex;align-items:center;gap:10px}
+.dot{width:14px;height:14px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.25)}
+.name{font-family:var(--font-display);font-size:20px;font-weight:700;margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid currentColor;flex:none}
+.badge.g{color:var(--good)}.badge.b{color:var(--bad)}.badge.m{color:var(--muted)}
+.meanings{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.meanings li{background:var(--chip);border-radius:8px;padding:3px 10px;font-size:14px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn{border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:13px;padding:6px 12px;border-radius:9px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn svg{width:14px;height:14px}
+.empty{text-align:center;color:var(--muted);padding-block:40px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav.tabs button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:500;padding-block:14px;cursor:pointer}
+nav.tabs button[aria-selected="true"]{color:var(--accent);font-weight:700}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toast{position:fixed;left:50%;bottom:calc(70px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13px;z-index:20}
+</style>
+
+<div class="app">
+  <header><h1 class="brand">BLOOM NOTE<small>꽃의 노트 · 꽃 이름과 꽃말을 빠르게</small></h1></header>
+
+  <section id="viewSearch">
+    <div class="sticky">
+      <form class="search" id="form" role="search">
+        <input id="q" type="search" autocomplete="off" placeholder="꽃 이름이나 뜻을 입력하세요" aria-label="꽃 이름이나 뜻 검색">
+        <button type="button" id="clear" aria-label="지우기" hidden>지우기</button>
+      </form>
+      <div class="seg" role="group" aria-label="꽃말 종류">
+        <button type="button" data-tone="all" aria-pressed="true">전체</button>
+        <button type="button" data-tone="good" aria-pressed="false">좋은 꽃말</button>
+        <button type="button" data-tone="bad" aria-pressed="false">안 좋은 꽃말</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div id="out"></div>
+  </section>
+
+  <section id="viewNote" hidden>
+    <p class="label">내 노트</p>
+    <div id="noteOut" class="list"></div>
+  </section>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="tabSearch" aria-selected="true">검색</button>
+  <button role="tab" id="tabNote" aria-selected="false">내 노트 <span id="cnt"></span></button>
+</nav>
+
+<script>
+// [꽃, 변종, 색, 성격(g좋음/b안좋음/m양면), 꽃말들, 검색 키워드]
+const D=[
+["은방울꽃","","#F3F6EE","g","틀림없이 행복해진다|다시 찾은 행복|순결|겸손|섬세함|희망","행복 희망 순결 겸손 재회"],
+["프리지아","노란","#F2C94C","g","당신을 응원합니다|새로운 시작|천진난만|친밀","응원 시작 졸업 입학 취업 새출발 격려"],
+["장미","빨간","#C62839","g","열렬한 사랑|욕망|아름다움","사랑 열정 고백"],
+["장미","분홍","#EE8FB0","g","행복한 사랑|감사|맹세","사랑 감사 행복"],
+["장미","노란","#F0C419","m","질투|시들어가는 사랑|우정","질투 우정 이별"],
+["장미","흰","#F4F1EC","g","순결|존경|매력","순수 순결 존경"],
+["장미","주황","#F08A32","g","새로운 시작에 대한 열정적인 응원|수줍음","응원 시작 열정 수줍음"],
+["치어플 장미","핑크","#F29CB8","g","당신을 응원해요","응원 격려"],
+["포인세티아","","#C8202F","g","행운|축복|나의 마음은 불타고 있습니다","행운 응원 축복 크리스마스 위로"],
+["튤립","빨간","#D0253A","g","사랑의 고백|사랑의 표현","사랑 고백"],
+["튤립","노란","#F2C530","b","헛된 사랑|희망 없는 사랑","짝사랑 이루어지지 않는 사랑"],
+["튤립","흰","#F5F3EE","m","실연|용서","이별 용서 실연"],
+["카네이션","빨간","#CB2C3E","g","사랑|존경|감사","감사 존경 부모님 스승"],
+["카네이션","노란","#EFC83D","b","경멸|거절|실망","거절 경멸 실망"],
+["카네이션","흰","#F4F2EE","m","당신의 애정을 기억합니다|추모","추모 애도 기억 그리움"],
+["해바라기","","#E9A81E","g","숭배|기다림|당신만을 바라봅니다","기다림 믿음 사랑 존경"],
+["국화","흰","#F4F4EF","m","진실|감사|추모","추모 애도 진실 감사"],
+["백합","","#F7F1EA","g","순결|변함없는 사랑|존엄","순결 순수 사랑"],
+["안개꽃","","#EFEFF4","g","맑은 마음|사랑의 성공|깨끗한 마음","순수 사랑 성공"],
+["수국","","#7A9BDB","b","변덕|냉담|진심|처녀의 꿈","변덕 냉담 차가움 진심"],
+["라벤더","","#8A72C0","g","침묵|정절|기대","침묵 기대 평온 위로"],
+["동백","붉은","#B91C2E","g","그대를 누구보다 사랑합니다|겸손한 마음","사랑 겸손"],
+["동백","흰","#F4F2EC","m","비밀스러운 사랑|기다림","비밀 기다림 사랑"],
+["벚꽃","","#F6C6D4","g","삶의 아름다움|정신의 아름다움|순결","아름다움 봄 순결"],
+["목련","","#F3E9EE","g","고귀함|자연에 대한 사랑","고귀 자연 사랑"],
+["진달래","","#D8589B","g","사랑의 기쁨|절제|청렴","사랑 기쁨 절제"],
+["개나리","","#F5D31F","g","희망|기대|깊은 정","희망 기대 봄"],
+["코스모스","","#E86FA3","g","소녀의 순정|조화|순정","순정 조화 사랑"],
+["민들레","","#F3C617","g","감사|행복|사랑의 신탁","감사 행복 사랑"],
+["제비꽃","","#6F4EB0","g","겸양|성실|진실한 사랑","겸손 성실 진실"],
+["아네모네","빨간","#C8283C","b","사랑의 괴로움|허무한 사랑|배신","배신 허무 괴로움 슬픔 이별"],
+["수선화","","#F2D13A","m","자기 사랑|자존심|고결","자기애 자존심 고결 짝사랑"],
+["히아신스","보라","#7C58B8","b","슬픔|용서해 주세요","슬픔 용서 사과 후회"],
+["금잔화","","#EE9B1D","b","이별의 슬픔|비탄|절망","이별 슬픔 절망 비탄"],
+["샐비어","","#D52B2B","g","불타는 마음|정열|지혜","열정 정열 지혜"],
+["접시꽃","","#D95C86","g","열렬한 사랑|야망","사랑 야망 열정"],
+["달리아","","#D8466E","m","감사|우아|불안정","감사 우아 불안정 변덕"],
+["양귀비","붉은","#D9342B","m","위로|몽상|덧없는 사랑","위로 위안 몽상 덧없음"],
+["매화","","#F2D4DB","g","고결|인내|충실","인내 고결 끈기 극복"],
+["복수초","","#F0C41C","m","영원한 행복|슬픈 추억","행복 추억 슬픔"],
+["데이지","","#F6F3E8","g","평화|순수|희망","평화 순수 희망"],
+["무궁화","","#C96ABF","g","일편단심|끈기","끈기 일편단심 인내"],
+["채송화","","#EA4C7A","m","천진난만|가련","천진난만 가련"],
+["봉선화","","#E5457A","m","나를 건드리지 마세요|정열적인 사랑","경계 열정 사랑"],
+["메리골드","","#F29A1B","m","반드시 오고야 말 행복|절망|질투","행복 절망 질투 기다림"],
+["거베라","","#F0683A","g","희망|상냥함|신비","희망 상냥 응원 밝음"],
+["라넌큘러스","","#F07C8B","g","매력|매혹|당신의 매력에 끌립니다","매력 매혹 사랑"],
+["작약","","#EE9AB5","g","수줍음|행복한 결혼|부끄러움","수줍음 결혼 행복"],
+["용담","","#4B5FC0","m","정의|슬퍼하는 당신이 좋습니다","정의 슬픔 위로"],
+["수레국화","","#4F7BD6","g","행복|섬세|우아","행복 섬세 우아"],
+["물망초","","#6F9BE8","g","나를 잊지 마세요|진실한 사랑","기억 그리움 사랑 이별 추억"],
+["협죽도","","#E96A8D","b","경계|조심|위험","위험 경계 조심 독"],
+["시클라멘","","#D6568A","b","질투|수줍음|의심","질투 의심"],
+["금어초","","#E8805A","b","탐욕|오만|수다쟁이","탐욕 오만 욕심"],
+["엉겅퀴","","#9A58B2","m","독립|고독|근엄","독립 고독 엄격"],
+["스위트피","","#C98ADB","m","즐거운 추억|떠나는 마음|이별","추억 이별 떠남 감사"],
+["글라디올러스","","#E04070","g","정열적인 사랑|용맹|밀회","열정 용기 사랑"],
+["백일홍","","#E0473B","m","떠나간 벗을 그리워함|인연|행복","그리움 인연 우정 행복"]
+].map(r=>({name:r[0],variant:r[1],hex:r[2],tone:r[3],meanings:r[4].split("|"),tags:r[5].split(" "),id:(r[1]+r[0])}));
+D.forEach(f=>{f.full=(f.variant?f.variant+" ":"")+f.name});
+D.sort((a,b)=>a.name.localeCompare(b.name,"ko")||a.full.localeCompare(b.full,"ko"));
+
+const ALLTAGS=[...new Set(D.flatMap(f=>f.tags))];
+const STOP=new Set(["꽃","꽃말","뜻","의미","가지고","있는","이란","이라는","라는","에게","어울리는","관련","나오는","꽃이름"]);
+const NEG=/(안\s*좋은|나쁜|부정적|슬픈|불길한|좋지\s*않은)/;
+const TONE_LABEL={g:"좋은 꽃말",b:"안 좋은 꽃말",m:"양면의 꽃말"};
+let tone="all", view="search", saved=[];
+try{saved=JSON.parse(localStorage.getItem("bloom-note")||"[]")}catch(e){}
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function search(q){
+  q=q.trim(); let t=tone;
+  let forceBad=NEG.test(q);
+  let qq=q.replace(NEG,"").replace(/\s+/g," ").trim();
+  if(!qq) return {list:D.filter(f=>forceBad?f.tone!=="g":true),forceBad,empty:false};
+  const toks=qq.split(/\s+/).filter(x=>x.length>=2&&!STOP.has(x));
+  const res=[];
+  for(const f of D){
+    let s=0;
+    if(f.full.replace(/\s/g,"")===qq.replace(/\s/g,"")) s+=120;
+    else if(f.name===qq) s+=100;
+    else if(qq.includes(f.name)) s+=90;
+    else if(f.name.includes(qq)) s+=70;
+    for(const tag of f.tags) if(qq.includes(tag)||toks.some(k=>k.startsWith(tag)||(k.length>=2&&tag.startsWith(k)))) s+=30;
+    for(const m of f.meanings) if(toks.some(k=>m.includes(k)||(k.length>=3&&m.includes(k.slice(0,2))&&false))) s+=12;
+    if(s>0) res.push([s,f]);
+  }
+  res.sort((a,b)=>b[0]-a[0]);
+  let list=res.map(r=>r[1]);
+  if(forceBad) list=list.filter(f=>f.tone!=="g");
+  return {list,forceBad,empty:true};
+}
+
+function card(f,today){
+  const on=saved.includes(f.id);
+  return `<article class="card${today?" today":""}">
+    <div class="top"><span class="dot" style="background:${f.hex}"></span><h3 class="name">${esc(f.full)}</h3><span class="badge ${f.tone}">${TONE_LABEL[f.tone]}</span></div>
+    <ul class="meanings">${f.meanings.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
+    <div class="actions">
+      <button class="btn" data-save="${esc(f.id)}" aria-pressed="${on}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2h8v12l-4-3-4 3z"/></svg>${on?"저장됨":"노트에 저장"}</button>
+      <button class="btn" data-copy="${esc(f.id)}">복사</button>
+    </div></article>`;
+}
+const byId=id=>D.find(f=>f.id===id);
+
+function render(){
+  const q=$("#q").value; $("#clear").hidden=!q;
+  const r=search(q); let list=r.list;
+  if(tone==="good") list=list.filter(f=>f.tone==="g");
+  if(tone==="bad") list=list.filter(f=>f.tone!=="g");
+  let html="";
+  if(!q.trim()){
+    const day=Math.floor(Date.now()/864e5)%D.length;
+    html+=`<p class="label">오늘의 꽃</p>`+card(D[day],true);
+    html+=`<p class="label">전체 ${list.length}개</p>`;
+  }else{
+    html+=`<p class="label">검색 결과 ${list.length}개${r.forceBad?" · 안 좋은 꽃말만":""}</p>`;
+  }
+  html+= list.length?`<div class="list">${list.map(f=>card(f)).join("")}</div>`:`<p class="empty">결과가 없어요.<br>다른 단어로 찾아보세요. 예: 응원, 감사, 이별</p>`;
+  $("#out").innerHTML=html;
+  $("#cnt").textContent=saved.length?`(${saved.length})`:"";
+}
+function renderNote(){
+  const l=saved.map(byId).filter(Boolean);
+  $("#noteOut").innerHTML=l.length?l.map(f=>card(f)).join(""):`<p class="empty">저장한 꽃이 없어요.<br>검색 결과에서 '노트에 저장'을 눌러 모아 보세요.</p>`;
+}
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1600)}
+function persist(){try{localStorage.setItem("bloom-note",JSON.stringify(saved))}catch(e){}}
+
+document.addEventListener("click",async e=>{
+  const s=e.target.closest("[data-save]"),c=e.target.closest("[data-copy]");
+  if(s){const id=s.dataset.save;saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];persist();view==="note"?renderNote():render();if(view==="note")$("#cnt").textContent=saved.length?`(${saved.length})`:""}
+  if(c){const f=byId(c.dataset.copy);const txt=`${f.full} - 꽃말: ${f.meanings.join(", ")}`;
+    try{await navigator.clipboard.writeText(txt);toast("복사했어요")}catch(err){
+      const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
+      let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();toast(ok?"복사했어요":txt)}}
+});
+$("#q").addEventListener("input",render);
+$("#form").addEventListener("submit",e=>{e.preventDefault();$("#q").blur()});
+$("#clear").addEventListener("click",()=>{$("#q").value="";render();$("#q").focus()});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{
+  tone=b.dataset.tone;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()}));
+["응원","사랑","감사","행복","희망","이별","슬픔","질투","위로","추모","용기"].forEach(w=>{
+  const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=w;
+  b.addEventListener("click",()=>{$("#q").value=w;render()});$("#chips").appendChild(b)});
+function setView(v){view=v;$("#viewSearch").hidden=v!=="search";$("#viewNote").hidden=v!=="note";
+  $("#tabSearch").setAttribute("aria-selected",v==="search");$("#tabNote").setAttribute("aria-selected",v==="note");
+  v==="note"?renderNote():render();window.scrollTo(0,0)}
+$("#tabSearch").addEventListener("click",()=>setView("search"));
+$("#tabNote").addEventListener("click",()=>setView("note"));
+render();
+</script>
+
+</body></html>
